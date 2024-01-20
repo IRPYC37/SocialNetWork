@@ -12,22 +12,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.*;
-
-
-
-
 
 public class Serveur {
     private ServerSocket serverSocket;
     private static String USERPATH = "./BD/users.json";
     private Map<String, List<String>> dico_users;
     private static String fichierMsg = "./BD/messages.json";
-
 
     public Serveur(int port) {
         try {
@@ -62,30 +56,29 @@ public class Serveur {
                 new GestionServeur(clientSocket, this).start();
             } catch (IOException e) {
                 e.printStackTrace();
-            }       
+            }
         }
     }
 
-
-    public JsonNode loadJSON(){
+    public JsonNode loadJSON() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readTree(new File(this.fichierMsg));
-            
+
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("ERR");
-            return null; 
+            return null;
         }
     }
 
-    public void addMessage(String userName,String message){
+    public void addMessage(String userName, String message) {
         JsonNode toutLesMessages = loadJSON();
         LocalDateTime dateHeureActuelles = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         String dateFormatee = dateHeureActuelles.format(formatter);
-        int idM= getMaxIdMessage() +1;
-        String date = dateFormatee ;
+        int idM = getMaxIdMessage() + 1;
+        String date = dateFormatee;
 
         if (toutLesMessages != null) {
             ObjectNode messagesNode = (ObjectNode) toutLesMessages.get("messages");
@@ -103,7 +96,7 @@ public class Serveur {
 
     }
 
-    public void like(String id){
+    public void like(String id) {
         JsonNode json = loadJSON();
         if (json != null) {
             ObjectNode toutLesMessages = (ObjectNode) json.get("messages");
@@ -116,19 +109,18 @@ public class Serveur {
         }
     }
 
-    public void delete(String id,String userName){
+    public void delete(String id, String userName) {
         JsonNode json = loadJSON();
         if (json != null) {
             ObjectNode toutLesMessages = (ObjectNode) json.get("messages");
             JsonNode leMessage = toutLesMessages.get(id);
-            
+
             if (leMessage != null && leMessage.get("user").asText().equals(userName)) {
                 toutLesMessages.remove(id);
                 sauvegarderFichierJson(json);
             }
         }
     }
-
 
     public String getMessage(String id) {
         JsonNode json = loadJSON();
@@ -155,38 +147,36 @@ public class Serveur {
         }
     }
 
-
-
     public int getMaxIdMessage() {
-    // Charger le fichier JSON
-    JsonNode jsonNode = loadJSON();
+        // Charger le fichier JSON
+        JsonNode jsonNode = loadJSON();
 
-    if (jsonNode != null && jsonNode.has("messages")) {
-        // Récupérer le nœud "messages"
-        JsonNode messagesNode = jsonNode.get("messages");
+        if (jsonNode != null && jsonNode.has("messages")) {
+            // Récupérer le nœud "messages"
+            JsonNode messagesNode = jsonNode.get("messages");
 
-        if (messagesNode.isObject()) {
-            // Parcourir les clés sous le nœud "messages" et trouver le maximum
-            Iterator<Map.Entry<String, JsonNode>> iterator = messagesNode.fields();
-            int maxID = 0;
+            if (messagesNode.isObject()) {
+                // Parcourir les clés sous le nœud "messages" et trouver le maximum
+                Iterator<Map.Entry<String, JsonNode>> iterator = messagesNode.fields();
+                int maxID = 0;
 
-            while (iterator.hasNext()) {
-                Map.Entry<String, JsonNode> entry = iterator.next();
-                try {
-                    int currentID = Integer.parseInt(entry.getKey());
-                    maxID = Math.max(maxID, currentID);
-                } catch (NumberFormatException e) {
-                    // Ignorer les clés non numériques
+                while (iterator.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = iterator.next();
+                    try {
+                        int currentID = Integer.parseInt(entry.getKey());
+                        maxID = Math.max(maxID, currentID);
+                    } catch (NumberFormatException e) {
+                        // Ignorer les clés non numériques
+                    }
                 }
+
+                return maxID;
             }
-
-            return maxID;
         }
-    }
 
-    // En cas d'erreur ou si le nœud "messages" n'est pas trouvé
-    return -1;
-}
+        // En cas d'erreur ou si le nœud "messages" n'est pas trouvé
+        return -1;
+    }
 
     public Map<String, List<String>> convertJsonToMap(JsonNode jsonNode) {
         Map<String, List<String>> resultMap = new HashMap<>();
