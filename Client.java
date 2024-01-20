@@ -8,104 +8,60 @@ public class Client {
     private Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
+    private String nom;
 
-    public Client(String serverAddress, int serverPort) {
+    public Client(String serverAddress, int serverPort, String nom) {
         try {
             socket = new Socket(serverAddress, serverPort);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
+            this.nom = nom;
+            outputStream.writeObject(this.nom);
+            String serverResponse = (String) inputStream.readObject();
+            System.out.println("Server : " + serverResponse);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void startClient() {
+
         try {
+
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
                 // Lit la console
                 String userInput = scanner.nextLine();
 
-                // Envoie la commande au serveur
-                outputStream.writeObject(userInput);
-                String[] args;
+                if ("/exit".equals(userInput)) {
 
-                if (!userInput.startsWith("/message")){
-                    args = userInput.split(" ");
-                }
-                else {
-                    args = userInput.split(" ", 2);
-                }
-
-
-
-                if ("/info".equals(args[0])) {
-                    // Recevoir et afficher les informations du serveur
-                    String serverResponse;
-                    try {
-                        serverResponse = (String) inputStream.readObject();
-                        System.out.println("Server : " + serverResponse);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                        System.out.println("Erreur d'InputStream !");
-                    }
-                }
-
-                if ("/message".equals(args[0])) {
-                    // Recevoir et afficher les informations du serveur
-                    String serverResponse;
-                    try {
-                        serverResponse = (String) inputStream.readObject();
-                        System.out.println("Server : " + serverResponse);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                        System.out.println("Erreur d'InputStream !");
-                    }
-                }
-
-                if ("/like".equals(args[0])) {
-                    // Recevoir et afficher les informations du serveur
-                    String serverResponse;
-                    try {
-                        serverResponse = (String) inputStream.readObject();
-                        System.out.println("Server : " + serverResponse);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                        System.out.println("Erreur d'InputStream !");
-                    }
-                }
-
-                if ("/delete".equals(args[0])) {
-                    // Recevoir et afficher les informations du serveur
-                    String serverResponse;
-                    try {
-                        serverResponse = (String) inputStream.readObject();
-                        System.out.println("Server : " + serverResponse);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                        System.out.println("Erreur d'InputStream !");
-                    }
-                }
-
-                if ("/exit".equals(args[0])) {
                     System.out.println("Fermeture du client.");
                     break;
                 }
-                
-            }  
+                // Envoie la commande au serveur
+                outputStream.writeObject(userInput);
+                String serverResponse;
+                try {
+                    serverResponse = (String) inputStream.readObject();
+                    System.out.println("Server : " + serverResponse);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    System.out.println("Erreur d'InputStream !");
+                }
+
+            }
             scanner.close();
             outputStream.close();
             inputStream.close();
-            socket.close(); 
-        } 
-            catch (IOException e) {
+            socket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        Client client = new Client("localhost", 55555);
+        Client client = new Client("localhost", 5555, "michel");
         client.startClient();
     }
 }
