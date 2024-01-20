@@ -125,20 +125,38 @@ public class Serveur {
             newMessageNode.put("date", date);
             newMessageNode.put("likes", 0);
 
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode likersNode = objectMapper.valueToTree(new ArrayList<String>());
+            newMessageNode.set("likers", likersNode);
+
             // Sauvegarder le fichier JSON mis à jour
             sauvegarderFichierJson(toutLesMessages);
         }
 
     }
 
-    public void like(String id) {
+    public void like(String id,String userName) {
         JsonNode json = loadJSON();
         if (json != null) {
             ObjectNode toutLesMessages = (ObjectNode) json.get("messages");
             JsonNode leMessage = toutLesMessages.get(id);
-            if (leMessage != null) {
+
+            if (leMessage != null && !leMessage.get("user").asText().equals(userName) && !leMessage.get("likers").toString().contains(userName)) {
+
                 int likes = leMessage.get("likes").asInt();
+                JsonNode likers = leMessage.get("likers");
                 ((ObjectNode) leMessage).put("likes", likes + 1);
+                ((ObjectNode) leMessage).put("likes", likes + 1);
+                ArrayList<String> newA = new ArrayList<String>();
+                for (JsonNode n : likers) {
+                    newA.add(n.asText());
+                }
+                newA.add(userName);
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode likersNode = objectMapper.valueToTree(newA);
+                ((ObjectNode) leMessage).set("likers", likersNode);
+
+
                 sauvegarderFichierJson(json);
             }
         }

@@ -71,7 +71,7 @@ class GestionServeur extends Thread {
                             String msg = clientCommand.split(" ")[1];
 
                             System.out.println("Like le message à l'ID : " + msg);
-                            this.serveur.like(msg);
+                            this.serveur.like(msg,this.nom);
                             outputStream.writeObject("Vous avez liké le message " + msg + "\n");
                         }
 

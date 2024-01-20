@@ -4,13 +4,29 @@
       "user" : "toto",
       "content" : "Hello world!",
       "date" : "2024-01-20T09:00:00Z",
-      "likes" : 3
+      "likes" : 3,
+      "likers" : [ ]
     },
     "2" : {
       "user" : "titou",
       "content" : "ntm michel",
       "date" : "2024-01-20 16:27:48.641",
-      "likes" : 0
+      "likes" : 0,
+      "likers" : [ ]
+    },
+    "3" : {
+      "user" : "Cyprien",
+      "content" : "C'est un test",
+      "date" : "2024-01-20 16:44:24.007",
+      "likes" : 0,
+      "likers" : [ ]
+    },
+    "4" : {
+      "user" : "Cyprien",
+      "content" : "Test 5",
+      "date" : "2024-01-20 16:51:05.937",
+      "likes" : 0,
+      "likers" : [  ]
     }
   }
 }
