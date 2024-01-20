@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
 import java.util.Scanner;
 
 public class Client {
@@ -35,8 +36,8 @@ public class Client {
                 String userInput = scanner.nextLine();
 
                 if ("/exit".equals(userInput)) {
-
-                    System.out.println("Fermeture du client.");
+                    outputStream.writeObject(userInput);
+                    System.out.println("Au revoir.");
                     break;
                 }
                 // Envoie la commande au serveur
@@ -61,7 +62,16 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        Client client = new Client("localhost", 5555, "titou");
+        System.out.println(
+                "Bienvenue sur notre application de messagerie, veuillez renseigner le port du serveur ainsi que votre nom \n");
+        Scanner scanner = new Scanner(System.in);
+
+        String userInput = scanner.nextLine();
+        String[] a = userInput.split(" ");
+
+        Client client = new Client("localhost", Integer.parseInt(a[0]), a[1]);
         client.startClient();
+
+        scanner.close();
     }
 }

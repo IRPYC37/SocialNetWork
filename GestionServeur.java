@@ -62,18 +62,23 @@ class GestionServeur extends Thread {
 
                     try {
                         clientCommand = (String) inputStream.readObject();
+                        if (!this.serveur.getUsers().containsKey(this.nom)) {
+                            outputStream.writeObject("Votre compte n'existe plus\n");
+                            break;
+                        }
 
-                        if (clientCommand.startsWith("/like")) {
+                        else if (clientCommand.startsWith("/like")) {
                             String msg = clientCommand.split(" ")[1];
 
                             System.out.println("Like le message à l'ID : " + msg);
                             this.serveur.like(msg);
-                            outputStream.writeObject("Message " + msg + " +1 Like \n");
+                            outputStream.writeObject("Vous avez liké le message " + msg + "\n");
                         }
 
                         else if (clientCommand.startsWith("/delete")) {
                             String msg = clientCommand.split(" ")[1];
                             System.out.println("Supprime le message à l'ID : " + msg);
+
                             this.serveur.delete(msg, this.nom);
                             outputStream.writeObject("Message de " +  this.nom+ " à l'ID " + msg + " supprimer \n");
                         }
@@ -97,17 +102,21 @@ class GestionServeur extends Thread {
                             catch(Exception e){
                                 System.out.println("ERR");
                             }                           
+
                         }
 
                         else if ("/exit".equals(clientCommand)) {
                             System.out.println(
+
                                     "Client deconnecté ! Info -> : " + clientSocket.getInetAddress().getHostAddress());
+                            outputStream.writeObject("Au revoir\n");
                             break;
                         }
 
                         else if (clientCommand.startsWith("/message")) {
                             String msg = clientCommand.split(" ", 2)[1];
                             System.out.println("Message : " + msg);
+
                             this.serveur.addMessage(this.nom, msg);
                             outputStream.writeObject("Message Envoyé -> " + msg + "\n");
 
@@ -143,6 +152,9 @@ class GestionServeur extends Thread {
                                         "Cet utilisateur n'existe pas\n");
                             }
 
+                        } else {
+                            outputStream.writeObject(
+                                    "Commande not found\n");
                         }
 
                     } catch (ClassNotFoundException e) {
