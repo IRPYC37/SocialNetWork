@@ -67,7 +67,7 @@ class GestionServeur extends Thread {
                             break;
                         }
 
-                        if (clientCommand.startsWith("/like")) {
+                        else if (clientCommand.startsWith("/like")) {
                             String msg = clientCommand.split(" ")[1];
 
                             System.out.println("Like le message à l'ID : " + msg);
@@ -78,8 +78,31 @@ class GestionServeur extends Thread {
                         else if (clientCommand.startsWith("/delete")) {
                             String msg = clientCommand.split(" ")[1];
                             System.out.println("Supprime le message à l'ID : " + msg);
-                            this.serveur.delete(msg, "User");
-                            outputStream.writeObject("Vous avez supprimé votre message portant l'ID " + msg + "\n");
+
+                            this.serveur.delete(msg, this.nom);
+                            outputStream.writeObject("Message de " +  this.nom+ " à l'ID " + msg + " supprimer \n");
+                        }
+
+                        else if (clientCommand.startsWith("/refresh")) {
+                            try{
+                                try {
+                                    String nbS = clientCommand.split(" ")[1];
+                                    Integer nb = Integer.parseInt(nbS);
+                                    String msgs = this.serveur.refresh(this.nom,nb);
+                                    System.out.println("REFRESHED par " + this.nom);
+                                    outputStream.writeObject("Les 10 derniers messages sont : \n \n" + msgs + "\n" );
+                                } catch (Exception e) {
+                                    System.out.println("Default 10");}
+                                    Integer nb = 10;
+                                    String msgs = this.serveur.refresh(this.nom,nb);
+                                    System.out.println("REFRESHED par " + this.nom);
+                                    outputStream.writeObject("Les 10 derniers messages sont : \n \n" + msgs + "\n" );
+                                
+                            }
+                            catch(Exception e){
+                                System.out.println("ERR");
+                            }                           
+
                         }
 
                         else if ("/exit".equals(clientCommand)) {
@@ -93,11 +116,11 @@ class GestionServeur extends Thread {
                         else if (clientCommand.startsWith("/message")) {
                             String msg = clientCommand.split(" ", 2)[1];
                             System.out.println("Message : " + msg);
-                            this.serveur.addMessage("User", msg);
-                            outputStream.writeObject("Message envoyé à vos abonnés -> " + msg + "\n");
+
+                            this.serveur.addMessage(this.nom, msg);
+                            outputStream.writeObject("Message Envoyé -> " + msg + "\n");
 
                         }
-                        // Traitement de la commande spécifique
                         else if ("/info".equals(clientCommand)) {
                             // Renvoyer des informations au client (dans cet exemple, l'adresse IP)
                             String clientAddress = clientSocket.getInetAddress().getHostAddress();
