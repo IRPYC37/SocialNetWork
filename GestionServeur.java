@@ -62,25 +62,31 @@ class GestionServeur extends Thread {
 
                     try {
                         clientCommand = (String) inputStream.readObject();
+                        if (!this.serveur.getUsers().containsKey(this.nom)) {
+                            outputStream.writeObject("Votre compte n'existe plus\n");
+                            break;
+                        }
 
                         if (clientCommand.startsWith("/like")) {
                             String msg = clientCommand.split(" ")[1];
 
                             System.out.println("Like le message à l'ID : " + msg);
                             this.serveur.like(msg);
-                            outputStream.writeObject("Message " + msg + " +1 Like \n");
+                            outputStream.writeObject("Vous avez liké le message " + msg + "\n");
                         }
 
                         else if (clientCommand.startsWith("/delete")) {
                             String msg = clientCommand.split(" ")[1];
                             System.out.println("Supprime le message à l'ID : " + msg);
                             this.serveur.delete(msg, "User");
-                            outputStream.writeObject("Message de " + "User" + " à l'ID " + msg + " supprimer \n");
+                            outputStream.writeObject("Vous avez supprimé votre message portant l'ID " + msg + "\n");
                         }
 
                         else if ("/exit".equals(clientCommand)) {
                             System.out.println(
+
                                     "Client deconnecté ! Info -> : " + clientSocket.getInetAddress().getHostAddress());
+                            outputStream.writeObject("Au revoir\n");
                             break;
                         }
 
@@ -88,7 +94,7 @@ class GestionServeur extends Thread {
                             String msg = clientCommand.split(" ", 2)[1];
                             System.out.println("Message : " + msg);
                             this.serveur.addMessage("User", msg);
-                            outputStream.writeObject("Message Envoyé -> " + msg + "\n");
+                            outputStream.writeObject("Message envoyé à vos abonnés -> " + msg + "\n");
 
                         }
                         // Traitement de la commande spécifique
@@ -123,6 +129,9 @@ class GestionServeur extends Thread {
                                         "Cet utilisateur n'existe pas\n");
                             }
 
+                        } else {
+                            outputStream.writeObject(
+                                    "Commande not found\n");
                         }
 
                     } catch (ClassNotFoundException e) {

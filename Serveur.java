@@ -3,9 +3,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -46,24 +43,62 @@ public class Serveur {
 
     public void startServer() throws IOException {
         System.out.println("Le serveur est en ligne sur le port : " + serverSocket.getLocalPort() + " !");
+        new Thread(() -> handleUserInput()).start();
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println(
                         "Nouvelle connection établie ! Adresse : " + clientSocket.getInetAddress().getHostAddress());
-
                 // Handle client communication in a separate thread
                 new GestionServeur(clientSocket, this).start();
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
+            }
+
+        }
+
+    }
+
+    private void handleUserInput() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Serveur : (Tapez '/exit' '/remove <user> 'delete <msg>') : ");
+            String userInput = scanner.nextLine();
+
+            // Vous pouvez ajouter des commandes supplémentaires ici
+            if ("/exit".equals(userInput)) {
+                // Arrêter le serveur
+                try {
+                    serverSocket.close();
+                    System.out.println("Le serveur a été arrêté.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.exit(0);
+                break;
+            } else if (userInput.startsWith("/remove")) {
+                try {
+                    this.removeUser(userInput.split(" ")[1]);
+                } catch (IOException e) {
+                }
+                ;
+                System.out.println("Utilisateur supprimé.");
+            } else if (userInput.startsWith("/delete")) {
+
+                this.deleteMsg(userInput.split(" ")[1]);
+
+                System.out.println("Message supprimé.");
             }
         }
+        scanner.close();
     }
 
     public JsonNode loadJSON() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readTree(new File(this.fichierMsg));
+            return objectMapper.readTree(new File(fichierMsg));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -122,6 +157,19 @@ public class Serveur {
         }
     }
 
+    public void deleteMsg(String id) {
+        JsonNode json = loadJSON();
+        if (json != null) {
+            ObjectNode toutLesMessages = (ObjectNode) json.get("messages");
+            JsonNode leMessage = toutLesMessages.get(id);
+
+            if (leMessage != null) {
+                toutLesMessages.remove(id);
+                sauvegarderFichierJson(json);
+            }
+        }
+    }
+
     public String getMessage(String id) {
         JsonNode json = loadJSON();
         if (json != null) {
@@ -141,7 +189,7 @@ public class Serveur {
             // Créer un objet ObjectMapper
             ObjectMapper objectMapper = new ObjectMapper();
 
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(this.fichierMsg), toutLesMessages);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(fichierMsg), toutLesMessages);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -217,6 +265,9 @@ public class Serveur {
         return stringList;
     }
 
+    public void deleteMsg(Integer id) {
+    }
+
     public void addUser(String nom) throws IOException {
         this.dico_users.put(nom, new ArrayList<>());
         this.majUsersBd();
@@ -230,6 +281,14 @@ public class Serveur {
 
     public void deleteFollow(String user, String follow) throws IOException {
         this.dico_users.get(user).remove(follow);
+        this.majUsersBd();
+    }
+
+    public void removeUser(String user) throws IOException {
+        this.dico_users.remove(user);
+        for (String u : this.dico_users.keySet()) {
+            this.dico_users.get(u).remove(user);
+        }
         this.majUsersBd();
     }
 
