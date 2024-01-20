@@ -45,7 +45,12 @@ public class Client {
                 String serverResponse;
                 try {
                     serverResponse = (String) inputStream.readObject();
+
                     System.out.println("Server : " + serverResponse);
+
+                    if (serverResponse.equals("Au revoir\n")) {
+                        break;
+                    }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     System.out.println("Erreur d'InputStream !");
