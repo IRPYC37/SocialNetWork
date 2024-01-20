@@ -33,7 +33,9 @@ public class Client {
             while (true) {
                 // Lit la console
                 String userInput = scanner.nextLine();
+
                 if ("/exit".equals(userInput)) {
+
                     System.out.println("Fermeture du client.");
                     break;
                 }
