@@ -29,8 +29,18 @@ public class Client {
 
                 // Envoie la commande au serveur
                 outputStream.writeObject(userInput);
+                String[] args;
 
-                if ("/info".equals(userInput)) {
+                if (!userInput.startsWith("/message")){
+                    args = userInput.split(" ");
+                }
+                else {
+                    args = userInput.split(" ", 2);
+                }
+
+
+
+                if ("/info".equals(args[0])) {
                     // Recevoir et afficher les informations du serveur
                     String serverResponse;
                     try {
@@ -42,7 +52,43 @@ public class Client {
                     }
                 }
 
-                if ("/exit".equals(userInput)) {
+                if ("/message".equals(args[0])) {
+                    // Recevoir et afficher les informations du serveur
+                    String serverResponse;
+                    try {
+                        serverResponse = (String) inputStream.readObject();
+                        System.out.println("Server : " + serverResponse);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        System.out.println("Erreur d'InputStream !");
+                    }
+                }
+
+                if ("/like".equals(args[0])) {
+                    // Recevoir et afficher les informations du serveur
+                    String serverResponse;
+                    try {
+                        serverResponse = (String) inputStream.readObject();
+                        System.out.println("Server : " + serverResponse);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        System.out.println("Erreur d'InputStream !");
+                    }
+                }
+
+                if ("/delete".equals(args[0])) {
+                    // Recevoir et afficher les informations du serveur
+                    String serverResponse;
+                    try {
+                        serverResponse = (String) inputStream.readObject();
+                        System.out.println("Server : " + serverResponse);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        System.out.println("Erreur d'InputStream !");
+                    }
+                }
+
+                if ("/exit".equals(args[0])) {
                     System.out.println("Fermeture du client.");
                     break;
                 }
