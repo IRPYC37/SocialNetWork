@@ -63,7 +63,7 @@ public class Serveur {
     public JsonNode loadJSON() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readTree(new File(this.fichierMsg));
+            return objectMapper.readTree(new File(fichierMsg));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -136,12 +136,49 @@ public class Serveur {
         return null;
     }
 
+    public String refresh(String nom, Integer nb) {
+        if(nb == null){
+            nb = 10;
+        }
+        String res=" ";
+        JsonNode json = loadJSON();
+        if (json != null) {
+            JsonNode toutLesMessages = json.get("messages");
+            if (toutLesMessages != null) {
+                Iterator<Map.Entry<String, JsonNode>> iterator = toutLesMessages.fields();
+                int maxID = 0;
+                List<String> follow = this.dico_users.get(nom);
+                while (iterator.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = iterator.next();
+                    try {
+                        int currentID = Integer.parseInt(entry.getKey());
+                        if (currentID > maxID && follow.contains(entry.getValue().get("user").asText())) {
+                            maxID = currentID;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignorer les clés non numériques
+                    }
+                }
+                int i = 0;
+                while (i < nb && maxID > 0) {
+                    JsonNode leMessage = toutLesMessages.get(String.valueOf(maxID));
+                    if (leMessage != null && follow.contains(leMessage.get("user").asText())) {
+                        res+= leMessage.get("user").asText() + " : \n" + leMessage.get("content").asText() + "\n \n";
+                        i++;
+
+                    }
+                    maxID--;
+                }
+            }
+        }
+        return res;
+}
     public void sauvegarderFichierJson(JsonNode toutLesMessages) {
         try {
             // Créer un objet ObjectMapper
             ObjectMapper objectMapper = new ObjectMapper();
 
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(this.fichierMsg), toutLesMessages);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(fichierMsg), toutLesMessages);
         } catch (IOException e) {
             e.printStackTrace();
         }
